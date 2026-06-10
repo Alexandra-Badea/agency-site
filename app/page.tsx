@@ -5,6 +5,7 @@ import Hero from './components/Hero'
 import Services from './components/Services'
 import CaseStudies from './components/CaseStudies'
 import Contact from './components/Contact'
+import Footer from './components/Footer'
 
 export default async function Home() {
   const hero = await client.fetch(HERO_QUERY)
@@ -24,6 +25,8 @@ export default async function Home() {
       <CaseStudies caseStudies={caseStudies} />
 
       <Contact />
+
+      <Footer />
     </main>
   );
 }
