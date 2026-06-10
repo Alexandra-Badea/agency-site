@@ -1,5 +1,5 @@
-import { client } from '../sanity/lib/client'
-import { HERO_QUERY, SERVICES_QUERY, CASE_STUDIES_QUERY } from '../sanity/lib/queries'
+import { client } from '@/sanity/lib/client'
+import { HERO_QUERY, SERVICES_QUERY, CASE_STUDIES_QUERY } from '@/sanity/lib/queries'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Services from './components/Services'
