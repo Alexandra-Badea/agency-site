@@ -1,5 +1,7 @@
 import { client } from '@/sanity/lib/client'
 import { HERO_QUERY, SERVICES_QUERY, CASE_STUDIES_QUERY } from '@/sanity/lib/queries'
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
 
 export default async function Home() {
   const hero = await client.fetch(HERO_QUERY)
@@ -7,11 +9,12 @@ export default async function Home() {
   const caseStudies = await client.fetch(CASE_STUDIES_QUERY)
   return (
     <main>
-      <section>
-        <h1>{hero?.headline}</h1>
-        <p>{hero?.subheadline}</p>
-        <button>{hero?.ctaText}</button>
-      </section>
+      <Navbar />
+      <Hero
+        headline={hero?.headline ?? ''}
+        subheadline={hero?.subheadline ?? ''}
+        ctaText={hero?.ctaText ?? ''}
+      />
 
       <section>
         {services.map((service) => (
