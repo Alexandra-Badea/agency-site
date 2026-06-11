@@ -11,7 +11,11 @@ interface ServicesProps {
 
 export default function Services({ services }: ServicesProps) {
   return (
-    <section id="services" className="py-32 px-6">
+    <section
+      id="services"
+      className="py-32 px-6"
+      style={{ background: 'linear-gradient(180deg, var(--background) 0%, #0d0d0f 100%)' }}
+    >
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -19,10 +23,10 @@ export default function Services({ services }: ServicesProps) {
           <p className="section-label text-sm font-medium tracking-widest uppercase mb-4" style={{ color: 'var(--accent)' }}>
             What we do
           </p>
-          <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
             Services
           </h2>
-          <p className="mt-4 text-lg max-w-2xl" style={{ color: 'var(--muted)', lineHeight: '1.75' }}>
+          <p className="text-lg max-w-2xl" style={{ color: 'var(--muted)', lineHeight: '1.75' }}>
             We combine strategy, design, and technology to build products people love.
           </p>
         </div>
@@ -32,7 +36,7 @@ export default function Services({ services }: ServicesProps) {
           {services.map((service, i) => (
             <div
               key={service._id}
-              className={`service-card p-8 rounded-2xl animate-fade-up animate-delay-${Math.min(i * 100 + 100, 500)}`}
+              className={`service-card p-8 rounded-2xl flex flex-col animate-fade-up animate-delay-${Math.min(i * 100 + 100, 500)}`}
               style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
             >
               {/* Icon */}
@@ -53,10 +57,10 @@ export default function Services({ services }: ServicesProps) {
                 {service.description}
               </p>
 
-              {/* Bottom link */}
-              <div className="mt-6 flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--accent)' }}>
+              {/* Pinned to card bottom */}
+              <div className="mt-auto pt-6 flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--accent)' }}>
                 <span>Learn more</span>
-                <span style={{ transition: 'transform 0.2s' }}>→</span>
+                <span>→</span>
               </div>
             </div>
           ))}

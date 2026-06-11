@@ -6,7 +6,7 @@ export default function Footer() {
     >
       <div className="max-w-6xl mx-auto">
         {/* Top row */}
-        <div className="py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div className="py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           {/* Brand */}
           <div>
             <p className="text-lg font-semibold text-white tracking-tight mb-1">
