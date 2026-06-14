@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { motion, useScroll, useTransform, useSpring } from 'motion/react'
 
 interface TeamMember { name: string; role: string; since: string }
@@ -23,10 +24,10 @@ const defaultParagraphs = [
   'Today we work across identity, digital, editorial, and space. Our clients are founders, CMOs, and creative directors who understand that the best work comes from genuine partnership — not a brief and a deadline.',
 ]
 const defaultTeam: TeamMember[] = [
-  { name: 'Mira Voss',    role: 'Founder & Creative Director', since: '2018' },
-  { name: 'Jonas Ekberg', role: 'Head of Strategy',            since: '2019' },
-  { name: 'Priya Nair',   role: 'Lead Designer',               since: '2020' },
-  { name: 'Félix Moreau', role: 'Digital Director',            since: '2021' },
+  { name: 'Mira Voss',    role: 'Founder & Creative Director', since: '2025' },
+  { name: 'Jonas Ekberg', role: 'Head of Strategy',            since: '2025' },
+  { name: 'Priya Nair',   role: 'Lead Designer',               since: '2025' },
+  { name: 'Félix Moreau', role: 'Digital Director',            since: '2025' },
 ]
 const defaultStats: Stat[] = [
   { label: 'Studio Size',     value: '14 People' },
@@ -128,14 +129,17 @@ export function About({ data }: AboutProps) {
               <motion.div
                 style={{
                   width: '100%', paddingBottom: '125%',
-                  background: 'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',
                   y: imageY, scale: 1.15, willChange: 'transform', position: 'relative',
                 }}
               >
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: 160, color: '#f0ede8', opacity: 0.04, letterSpacing: '-0.05em', userSelect: 'none' }}>N</span>
-                </div>
+                <Image
+                  src="/about_section.jpg"
+                  alt="About the studio"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                />
               </motion.div>
 
               <div style={{ position: 'absolute', bottom: 24, left: 24, right: 24, padding: '20px 24px', background: 'rgba(10,10,10,0.7)', backdropFilter: 'blur(8px)', border: '1px solid rgba(240,237,232,0.1)' }}>
