@@ -19,13 +19,17 @@ export const SERVICES_QUERY = defineQuery(
 )
 
 export const CASE_STUDIES_QUERY = defineQuery(
-  `*[_type == "caseStudy"]{
+  `*[_type == "caseStudy"] | order(order asc){
     _id,
     title,
     client,
+    year,
     coverImage,
     tags,
-    summary
+    summary,
+    accentColor,
+    size,
+    order
   }`
 )
 
