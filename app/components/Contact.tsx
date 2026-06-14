@@ -1,116 +1,228 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { motion, useScroll, useTransform, useSpring } from 'motion/react'
 
 export default function Contact() {
-    const [formData, setFormData] = useState({ name: '', email: '', message: '' })
-    const [submitted, setSubmitted] = useState(false)
+  const [form, setForm] = useState({ name: '', email: '', company: '', budget: '', message: '' })
+  const [submitted, setSubmitted] = useState(false)
 
-    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setSubmitted(true)
-    }
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
 
-    return (
-        <section
-            id="contact"
-            className="py-32 px-6 relative overflow-hidden"
-            style={{ background: 'linear-gradient(180deg, #0d0d0f 0%, var(--background) 100%)' }}
-        >
-            {/* Glow */}
-            <div
-                className="absolute pointer-events-none"
-                style={{
-                    width: '500px', height: '500px',
-                    bottom: '-100px', right: '-100px',
-                    background: 'radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)',
-                    filter: 'blur(40px)',
-                }}
-            />
+  const headingY = useTransform(scrollYProgress, [0, 0.5], ['8%', '0%'])
+  const headingYSpring = useSpring(headingY, { stiffness: 70, damping: 28 })
+  const headingOpacity = useTransform(scrollYProgress, [0, 0.25], [0, 1])
 
-            <div className="relative z-10 max-w-2xl mx-auto">
-                {/* Header — matches Services/CaseStudies spacing */}
-                <div className="mb-16">
-                    <p className="section-label text-sm font-medium tracking-widest uppercase mb-4" style={{ color: 'var(--accent)' }}>
-                        Contact
-                    </p>
-                    <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
-                        Let&apos;s work together
-                    </h2>
-                    <p className="text-lg" style={{ color: 'var(--muted)', lineHeight: '1.75' }}>
-                        Tell us about your project and we&apos;ll get back to you within 24 hours.
-                    </p>
+  const ghostY = useTransform(scrollYProgress, [0, 1], ['-20%', '20%'])
+  const ghostYSpring = useSpring(ghostY, { stiffness: 55, damping: 22 })
+
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSubmitted(true)
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', background: 'rgba(255,255,255,0.04)', border: 'none',
+    borderBottom: '1px solid rgba(240,237,232,0.3)',
+    padding: '14px 0',
+    fontFamily: "'Instrument Sans', sans-serif",
+    fontSize: 15, color: '#f0ede8', outline: 'none',
+    transition: 'border-color 0.2s', boxSizing: 'border-box',
+  }
+
+  return (
+    <section
+      ref={sectionRef}
+      id="contact"
+      style={{ background: '#141414', borderTop: '1px solid rgba(240,237,232,0.08)', position: 'relative', overflow: 'hidden' }}
+    >
+      {/* Ghost heading parallax */}
+      <motion.div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+        overflow: 'hidden', pointerEvents: 'none',
+        y: ghostYSpring, zIndex: 0, paddingRight: '5%',
+      }}>
+        <span style={{
+          fontFamily: "'Archivo Black', sans-serif",
+          fontSize: 'clamp(80px,18vw,260px)',
+          letterSpacing: '-0.04em',
+          color: 'rgba(200,255,0,0.03)',
+          userSelect: 'none', whiteSpace: 'nowrap', lineHeight: 1,
+        }}>
+          CONTACT
+        </span>
+      </motion.div>
+
+      <div className="section-pad" style={{ maxWidth: 1400, margin: '0 auto', padding: '120px 40px', position: 'relative', zIndex: 1 }}>
+        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+
+          {/* Left */}
+          <div>
+            <motion.div style={{ y: headingYSpring, opacity: headingOpacity }}>
+              <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#c8ff00', marginBottom: 16 }}>
+                Get In Touch
+              </div>
+              <h2 style={{
+                fontFamily: "'Archivo Black', sans-serif",
+                fontSize: 'clamp(44px,6vw,88px)',
+                color: '#f0ede8', letterSpacing: '-0.03em', lineHeight: 0.9,
+                margin: '0 0 48px 0',
+              }}>
+                LET&apos;S<br />BUILD<br />SOMETHING<br />BOLD.
+              </h2>
+              <p style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 15, lineHeight: 1.75, color: '#888880', margin: '0 0 48px 0', maxWidth: 400 }}>
+                Tell us about your project and we&apos;ll get back to you within 48 hours.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {[
+                  { label: 'New Business', value: 'hello@nova.studio' },
+                  { label: 'Press & Media', value: 'press@nova.studio' },
+                  { label: 'Location', value: 'Mitte, Berlin DE 10117' },
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                  >
+                    <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888880', marginBottom: 6 }}>
+                      {item.label}
+                    </div>
+                    <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 14, color: '#f0ede8' }}>
+                      {item.value}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right — form */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.75, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {submitted ? (
+              <div style={{ border: '1px solid rgba(200,255,0,0.3)', padding: '60px 40px', textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: 48, color: '#c8ff00', marginBottom: 20 }}>✓</div>
+                <div style={{ fontFamily: "'Archivo Black', sans-serif", fontSize: 24, color: '#f0ede8', letterSpacing: '-0.02em', marginBottom: 16 }}>
+                  Message Received
+                </div>
+                <p style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 14, color: '#888880', margin: 0 }}>
+                  We&apos;ll review your brief and follow up within 48 hours.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }} className="form-row">
+                  {[
+                    { label: 'Full Name *', key: 'name', type: 'text', placeholder: 'Your name', required: true },
+                    { label: 'Email *', key: 'email', type: 'email', placeholder: 'you@company.com', required: true },
+                  ].map(field => (
+                    <div key={field.key}>
+                      <label style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888880', display: 'block', marginBottom: 8 }}>
+                        {field.label}
+                      </label>
+                      <input
+                        required={field.required}
+                        type={field.type}
+                        value={form[field.key as keyof typeof form]}
+                        onChange={e => setForm({ ...form, [field.key]: e.target.value })}
+                        placeholder={field.placeholder}
+                        style={inputStyle}
+                        onFocus={e => (e.target.style.borderBottomColor = '#c8ff00')}
+                        onBlur={e  => (e.target.style.borderBottomColor = 'rgba(240,237,232,0.3)')}
+                      />
+                    </div>
+                  ))}
                 </div>
 
-                {submitted ? (
-                    <div
-                        className="p-12 rounded-2xl text-center"
-                        style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
-                    >
-                        <div
-                            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-6"
-                            style={{ background: 'var(--accent-light)', border: '1px solid rgba(99,102,241,0.4)' }}
-                        >
-                            <span style={{ color: 'var(--accent)', fontSize: '1.25rem' }}>✓</span>
-                        </div>
-                        <p className="text-2xl font-semibold text-white mb-3 tracking-tight">Message sent!</p>
-                        <p style={{ color: 'var(--muted)' }}>We&apos;ll be in touch shortly.</p>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        {/* Name + email — stack on mobile, side by side on md+ */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}
-                             className="md:grid-cols-2">
-                            <input
-                                type="text"
-                                placeholder="Your name"
-                                required
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="form-input w-full px-5 py-4 rounded-xl text-white outline-none"
-                                style={{ background: 'var(--card)', border: '1px solid var(--border)', color: '#fff', fontSize: '0.9375rem' }}
-                                onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--accent-light)'; }}
-                                onBlur={e =>  { e.currentTarget.style.borderColor = 'var(--border)';  e.currentTarget.style.boxShadow = 'none'; }}
-                            />
-                            <input
-                                type="email"
-                                placeholder="Your email"
-                                required
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="form-input w-full px-5 py-4 rounded-xl text-white outline-none"
-                                style={{ background: 'var(--card)', border: '1px solid var(--border)', color: '#fff', fontSize: '0.9375rem' }}
-                                onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--accent-light)'; }}
-                                onBlur={e =>  { e.currentTarget.style.borderColor = 'var(--border)';  e.currentTarget.style.boxShadow = 'none'; }}
-                            />
-                        </div>
+                <div>
+                  <label style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888880', display: 'block', marginBottom: 8 }}>
+                    Company / Brand
+                  </label>
+                  <input
+                    value={form.company}
+                    onChange={e => setForm({ ...form, company: e.target.value })}
+                    placeholder="Where do you work?"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderBottomColor = '#c8ff00')}
+                    onBlur={e  => (e.target.style.borderBottomColor = 'rgba(240,237,232,0.3)')}
+                  />
+                </div>
 
-                        <textarea
-                            placeholder="Tell us about your project"
-                            required
-                            rows={6}
-                            value={formData.message}
-                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                            className="form-input w-full px-5 py-4 rounded-xl text-white outline-none resize-none"
-                            style={{ background: 'var(--card)', border: '1px solid var(--border)', color: '#fff', fontSize: '0.9375rem', lineHeight: '1.6' }}
-                            onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--accent-light)'; }}
-                            onBlur={e =>  { e.currentTarget.style.borderColor = 'var(--border)';  e.currentTarget.style.boxShadow = 'none'; }}
-                        />
+                <div>
+                  <label style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888880', display: 'block', marginBottom: 16 }}>
+                    Budget Range
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                    {['< €25k', '€25–75k', '€75–150k', '€150k+'].map(range => (
+                      <button
+                        type="button"
+                        key={range}
+                        onClick={() => setForm({ ...form, budget: range })}
+                        style={{
+                          fontFamily: "'Instrument Sans', sans-serif",
+                          fontSize: 12, letterSpacing: '0.08em',
+                          color: form.budget === range ? '#0a0a0a' : '#888880',
+                          background: form.budget === range ? '#c8ff00' : 'transparent',
+                          border: `1px solid ${form.budget === range ? '#c8ff00' : 'rgba(240,237,232,0.15)'}`,
+                          padding: '8px 16px', transition: 'all 0.2s',
+                        }}
+                      >
+                        {range}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                        <button
-                            type="submit"
-                            className="btn-primary w-full py-4 rounded-full text-white font-medium flex items-center justify-center gap-2"
-                            style={{ background: 'var(--accent)', fontSize: '0.9375rem' }}
-                        >
-                            Send message <span>→</span>
-                        </button>
+                <div>
+                  <label style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888880', display: 'block', marginBottom: 8 }}>
+                    Tell Us About Your Project *
+                  </label>
+                  <textarea
+                    required
+                    value={form.message}
+                    onChange={e => setForm({ ...form, message: e.target.value })}
+                    placeholder="What are you trying to achieve? What's the timeline?"
+                    rows={4}
+                    style={{
+                      ...inputStyle,
+                      resize: 'none', borderBottom: 'none',
+                      border: '1px solid rgba(240,237,232,0.3)',
+                      padding: '14px 16px',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = '#c8ff00')}
+                    onBlur={e  => (e.target.style.borderColor = 'rgba(240,237,232,0.3)')}
+                  />
+                </div>
 
-                        <p className="text-xs text-center" style={{ color: 'var(--muted)', marginTop: '0.25rem' }}>
-                            No spam. We&apos;ll only contact you about your project.
-                        </p>
-                    </form>
-                )}
-            </div>
-        </section>
-    )
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.2 }}
+                  style={{
+                    fontFamily: "'Archivo Black', sans-serif",
+                    fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase',
+                    color: '#0a0a0a', background: '#c8ff00',
+                    border: 'none', padding: '18px 40px',
+                    alignSelf: 'flex-start',
+                  }}
+                >
+                  Send Brief →
+                </motion.button>
+              </form>
+            )}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
 }

@@ -4,10 +4,6 @@ import { useState, useRef } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'motion/react'
 import Image from 'next/image'
 
-interface SanityImage {
-  asset?: { url?: string }
-}
-
 interface CaseStudy {
   _id: string
   title: string
@@ -18,14 +14,13 @@ interface CaseStudy {
   accentColor?: string
   size?: 'large' | 'portrait' | 'medium' | 'wide'
   order?: number
-  coverImage?: SanityImage
+  coverImageUrl?: string
 }
 
 interface CaseStudiesProps {
   caseStudies?: CaseStudy[] | null
 }
 
-// Fallback data — used when Sanity has no entries
 const fallback: CaseStudy[] = [
   { _id: '1', client: 'Rivian',  title: 'Brand Identity System',    tags: ['Brand Identity', 'Campaign'], summary: 'Complete visual identity system and launch campaign.',  year: '2024', accentColor: '#c8ff00', size: 'large',   order: 1 },
   { _id: '2', client: 'Loewe',   title: 'Seasonal Editorial',        tags: ['Editorial', 'Art Direction'],  summary: 'Art direction for seasonal lookbook.',                  year: '2024', accentColor: '#ff6b35', size: 'portrait', order: 2 },
@@ -56,7 +51,7 @@ function getAspectRatio(size?: string) {
 function ParallaxCard({ project, index }: { project: CaseStudy; index: number }) {
   const [hovered, setHovered] = useState(false)
   const accent    = project.accentColor || '#c8ff00'
-  const imageUrl  = project.coverImage?.asset?.url
+  const imageUrl  = project.coverImageUrl
 
   return (
     <motion.div

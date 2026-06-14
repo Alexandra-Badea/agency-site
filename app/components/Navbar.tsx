@@ -1,114 +1,132 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
+import { motion, AnimatePresence } from 'motion/react'
+
+const links = ['Work', 'Services', 'About', 'Process', 'Contact']
 
 export default function Navbar() {
-    const [menuOpen, setMenuOpen] = useState(false)
-    const [scrolled, setScrolled] = useState(false)
+  const [scrolled,  setScrolled]  = useState(false)
+  const [menuOpen,  setMenuOpen]  = useState(false)
 
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20)
-        window.addEventListener('scroll', onScroll, { passive: true })
-        return () => window.removeEventListener('scroll', onScroll)
-    }, [])
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', h, { passive: true })
+    return () => window.removeEventListener('scroll', h)
+  }, [])
 
-    return (
-        <nav
-            className="fixed top-0 left-0 right-0 z-50 transition-all"
+  const scrollTo = (id: string) => {
+    setMenuOpen(false)
+    document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  return (
+    <>
+      <nav
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+          background:    scrolled ? 'rgba(10,10,10,0.92)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(12px)' : 'none',
+          borderBottom:  scrolled ? '1px solid rgba(240,237,232,0.08)' : 'none',
+          transition: 'background 0.3s, border-color 0.3s',
+        }}
+      >
+        <div style={{
+          maxWidth: 1400, margin: '0 auto', padding: '0 40px',
+          height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          {/* Logo */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             style={{
-                background: scrolled ? 'rgba(10,10,10,0.9)' : 'rgba(10,10,10,0.6)',
-                backdropFilter: 'blur(16px)',
-                borderBottom: `1px solid ${scrolled ? 'var(--border)' : 'transparent'}`,
-                boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.4)' : 'none',
+              fontFamily: "'Archivo Black', sans-serif",
+              color: '#c8ff00', fontSize: 20, letterSpacing: '-0.02em',
+              background: 'none', border: 'none', padding: 0,
             }}
-        >
-            <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-                {/* Logo */}
-                <Link href="/" className="text-white font-semibold text-lg tracking-tight select-none">
-                    NOVA<span style={{ color: 'var(--accent)' }}>.</span>
-                </Link>
+          >
+            NOVA
+          </button>
 
-                {/* Desktop nav */}
-                <div className="hidden md:flex items-center gap-8">
-                    {['Services', 'Work', 'Contact'].map((item) => (
-                        <Link
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            className="nav-link text-sm transition-colors"
-                            style={{ color: 'var(--muted-light)' }}
-                            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted-light)')}
-                        >
-                            {item}
-                        </Link>
-                    ))}
-                    <a
-                        href="#contact"
-                        className="btn-primary text-sm px-5 py-2 rounded-full text-white font-medium"
-                        style={{ background: 'var(--accent)' }}
-                    >
-                        Get in touch
-                    </a>
-                </div>
+          {/* Desktop */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 40 }} className="hidden md:flex">
+            {links.map(l => (
+              <button
+                key={l}
+                onClick={() => scrollTo(l)}
+                style={{
+                  fontFamily: "'Instrument Sans', sans-serif",
+                  fontSize: 13, letterSpacing: '0.12em', textTransform: 'uppercase',
+                  color: '#f0ede8', opacity: 0.7,
+                  background: 'none', border: 'none', padding: 0,
+                  transition: 'opacity 0.2s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
+              >
+                {l}
+              </button>
+            ))}
+            <button
+              onClick={() => scrollTo('Contact')}
+              style={{
+                fontFamily: "'Instrument Sans', sans-serif",
+                fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: '#0a0a0a', background: '#c8ff00',
+                border: 'none', padding: '10px 22px',
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              Start a Project
+            </button>
+          </div>
 
-                {/* Mobile hamburger */}
+          {/* Hamburger */}
+          <button
+            className="md:hidden"
+            style={{ background: 'none', border: 'none', color: '#f0ede8', padding: 0 }}
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label="Toggle menu"
+          >
+            <div style={{ width: 24, height: 2, background: 'currentColor', marginBottom: 6, transition: 'transform 0.2s', transform: menuOpen ? 'rotate(45deg) translateY(8px)' : 'none' }} />
+            <div style={{ width: 24, height: 2, background: 'currentColor', transition: 'opacity 0.2s', opacity: menuOpen ? 0 : 1 }} />
+            <div style={{ width: 24, height: 2, background: 'currentColor', marginTop: 6, transition: 'transform 0.2s', transform: menuOpen ? 'rotate(-45deg) translateY(-8px)' : 'none' }} />
+          </button>
+        </div>
+      </nav>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              position: 'fixed', top: 72, left: 0, right: 0, zIndex: 49,
+              background: '#0a0a0a',
+              borderBottom: '1px solid rgba(240,237,232,0.1)',
+              padding: '32px 40px 40px',
+            }}
+          >
+            {links.map(l => (
+              <div key={l} style={{ borderTop: '1px solid rgba(240,237,232,0.08)', padding: '20px 0' }}>
                 <button
-                    className="md:hidden flex flex-col justify-center items-center gap-1 w-8 h-8"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    aria-label="Toggle menu"
+                  onClick={() => scrollTo(l)}
+                  style={{
+                    fontFamily: "'Archivo Black', sans-serif",
+                    fontSize: 28, color: '#f0ede8',
+                    background: 'none', border: 'none', padding: 0,
+                  }}
                 >
-                    <span
-                        className="block h-px w-5 transition-all"
-                        style={{
-                            background: 'var(--muted-light)',
-                            transform: menuOpen ? 'rotate(45deg) translate(2px, 2px)' : 'none',
-                        }}
-                    />
-                    <span
-                        className="block h-px w-5 transition-all"
-                        style={{
-                            background: 'var(--muted-light)',
-                            opacity: menuOpen ? 0 : 1,
-                        }}
-                    />
-                    <span
-                        className="block h-px w-5 transition-all"
-                        style={{
-                            background: 'var(--muted-light)',
-                            transform: menuOpen ? 'rotate(-45deg) translate(2px, -2px)' : 'none',
-                        }}
-                    />
+                  {l}
                 </button>
-            </div>
-
-            {/* Mobile menu */}
-            {menuOpen && (
-                <div
-                    className="md:hidden px-6 pb-6 flex flex-col gap-4"
-                    style={{ borderTop: '1px solid var(--border)' }}
-                >
-                    {['Services', 'Work', 'Contact'].map((item) => (
-                        <Link
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            className="text-sm pt-4 transition-colors"
-                            style={{ color: 'var(--muted-light)' }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            {item}
-                        </Link>
-                    ))}
-                    <a
-                        href="#contact"
-                        className="text-sm px-4 py-3 rounded-full text-white text-center font-medium"
-                        style={{ background: 'var(--accent)' }}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        Get in touch
-                    </a>
-                </div>
-            )}
-        </nav>
-    )
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
 }

@@ -123,7 +123,7 @@ export default function Hero({ subheadline, ctaText }: HeroProps) {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 style={{ display: 'inline-block', height: 1, background: '#c8ff00', overflow: 'hidden' }}
               />
-              Creative Studio — Est. 2026
+              Creative Studio — Est. 2025
             </motion.div>
 
             {/* Headline */}
@@ -205,7 +205,7 @@ export default function Hero({ subheadline, ctaText }: HeroProps) {
               { num: '120+', label: 'Projects Delivered' },
               { num: '14',   label: 'Countries Reached' },
               { num: '8×',   label: 'Award Winning' },
-              { num: '2018', label: 'Founded in Berlin' },
+              { num: '2025', label: 'Founded in Berlin' },
             ].map((stat, i) => (
               <motion.div
                 key={stat.num}
