@@ -1,234 +1,260 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
+import { motion, useScroll, useTransform, useSpring } from 'motion/react'
 
 interface HeroProps {
-    headline: string
-    subheadline: string
-    ctaText: string
+  subheadline: string
+  ctaText: string
 }
 
-export default function Hero({ headline, subheadline, ctaText }: HeroProps) {
-    const [scrollY, setScrollY] = useState(0)
-    const rafRef = useRef<number | null>(null)
+function SplitReveal({ text, delay = 0, style = {} }: { text: string; delay?: number; style?: React.CSSProperties }) {
+  const words = text.split(' ')
+  return (
+    <span style={{ display: 'inline', ...style }}>
+      {words.map((word, i) => (
+        <span key={i} style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' }}>
+          <motion.span
+            style={{ display: 'inline-block' }}
+            initial={{ y: '110%', opacity: 0 }}
+            animate={{ y: '0%', opacity: 1 }}
+            transition={{ duration: 0.85, delay: delay + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {word}
+          </motion.span>
+          {i < words.length - 1 && <span>&nbsp;</span>}
+        </span>
+      ))}
+    </span>
+  )
+}
 
-    useEffect(() => {
-        const onScroll = () => {
-            if (rafRef.current) cancelAnimationFrame(rafRef.current)
-            rafRef.current = requestAnimationFrame(() => setScrollY(window.scrollY))
-        }
-        window.addEventListener('scroll', onScroll, { passive: true })
-        return () => {
-            window.removeEventListener('scroll', onScroll)
-            if (rafRef.current) cancelAnimationFrame(rafRef.current)
-        }
-    }, [])
+export default function Hero({ subheadline, ctaText }: HeroProps) {
+  const ref = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
 
-    const s = scrollY
+  const bgY       = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
+  const titleY    = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
+  const subtitleY = useTransform(scrollYProgress, [0, 1], ['0%', '10%'])
+  const opacity   = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
-    return (
-        <section
-            className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-16"
-            style={{ overflow: 'clip' }}
+  const bgYSpring    = useSpring(bgY,    { stiffness: 80, damping: 30 })
+  const titleYSpring = useSpring(titleY, { stiffness: 80, damping: 30 })
+
+  return (
+    <section
+      ref={ref}
+      id="hero"
+      style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}
+    >
+      {/* Decorative grid lines + circles — parallax layer 0 */}
+      <motion.div
+        style={{ position: 'absolute', inset: 0, y: bgYSpring, pointerEvents: 'none', zIndex: 0 }}
+      >
+        {/* Acid green circles */}
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute', top: '12%', right: '8%',
+            width: 320, height: 320,
+            border: '1px solid rgba(200,255,0,0.12)', borderRadius: '50%',
+          }}
+        />
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.6, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute', top: '12%', right: '8%',
+            width: 200, height: 200,
+            border: '1px solid rgba(200,255,0,0.08)', borderRadius: '50%',
+            transform: 'translate(60px, 60px)',
+          }}
+        />
+
+        {/* Vertical label */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 1.2 }}
+          style={{
+            position: 'absolute', top: '28%', right: '12%',
+            fontFamily: "'Archivo Black', sans-serif",
+            fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
+            color: 'rgba(200,255,0,0.4)',
+            writingMode: 'vertical-rl',
+          }}
         >
+          Berlin · 52°N
+        </motion.div>
+      </motion.div>
 
-            {/* ── Layer -1: Grid — near static ── */}
-            <div
-                className="absolute inset-0 hero-grid pointer-events-none"
-                style={{ transform: `translateY(${s * 0.1}px) scale(${1 + s * 0.0002})`, willChange: 'transform', opacity: Math.max(0, 1 - s * 0.002) }}
-            />
-
-            {/* ── Floating orbs — each moves in a unique direction ── */}
-
-            {/* Orb A: top-left, drifts right + down slowly */}
-            <div className="absolute pointer-events-none" style={{
-                width: '500px', height: '500px',
-                top: '10%', left: '-10%',
-                transform: `translate(${s * 0.18}px, ${s * 0.12}px)`,
-                background: 'radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 65%)',
-                filter: 'blur(60px)',
-                willChange: 'transform',
-            }} />
-
-            {/* Orb B: top-right, drifts left + down */}
-            <div className="absolute pointer-events-none" style={{
-                width: '600px', height: '600px',
-                top: '-5%', right: '-15%',
-                transform: `translate(${s * -0.22}px, ${s * 0.3}px)`,
-                background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 65%)',
-                filter: 'blur(80px)',
-                willChange: 'transform',
-            }} />
-
-            {/* Orb C: bottom-center, rises up */}
-            <div className="absolute pointer-events-none" style={{
-                width: '400px', height: '400px',
-                bottom: '0%', left: '30%',
-                transform: `translate(${s * 0.08}px, ${s * -0.4}px)`,
-                background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 65%)',
-                filter: 'blur(70px)',
-                willChange: 'transform',
-            }} />
-
-            {/* ── Floating geometric shapes ── */}
-
-            {/* Shape 1: rotating square, top-left */}
-            <div className="absolute pointer-events-none" style={{
-                width: '80px', height: '80px',
-                top: '18%', left: '8%',
-                border: '1px solid rgba(99,102,241,0.25)',
-                borderRadius: '12px',
-                transform: `translateY(${s * -0.55}px) rotate(${s * 0.08}deg)`,
-                willChange: 'transform',
-            }} />
-
-            {/* Shape 2: small circle, top-right */}
-            <div className="absolute pointer-events-none" style={{
-                width: '28px', height: '28px',
-                top: '22%', right: '12%',
-                borderRadius: '50%',
-                border: '1px solid rgba(139,92,246,0.35)',
-                transform: `translateY(${s * -0.7}px) translateX(${s * -0.1}px)`,
-                willChange: 'transform',
-            }} />
-
-            {/* Shape 3: large ring, bottom-right */}
-            <div className="absolute pointer-events-none" style={{
-                width: '160px', height: '160px',
-                bottom: '15%', right: '7%',
-                borderRadius: '50%',
-                border: '1px solid rgba(99,102,241,0.15)',
-                transform: `translateY(${s * -0.35}px) rotate(${s * -0.05}deg)`,
-                willChange: 'transform',
-            }} />
-
-            {/* Shape 4: tiny dot cluster, left */}
-            <div className="absolute pointer-events-none flex flex-col gap-2" style={{
-                top: '45%', left: '5%',
-                transform: `translateY(${s * -0.45}px)`,
-                willChange: 'transform',
-            }}>
-                {[0,1,2].map(i => (
-                    <div key={i} style={{
-                        width: '4px', height: '4px',
-                        borderRadius: '50%',
-                        background: `rgba(99,102,241,${0.4 - i * 0.1})`,
-                        marginLeft: `${i * 6}px`,
-                    }} />
-                ))}
-            </div>
-
-            {/* Shape 5: horizontal line, right side */}
-            <div className="absolute pointer-events-none" style={{
-                width: '60px', height: '1px',
-                top: '55%', right: '6%',
-                background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.5))',
-                transform: `translateY(${s * -0.6}px) scaleX(${1 + s * 0.001})`,
-                willChange: 'transform',
-            }} />
-
-            {/* ── Layer 2: Hero content — medium depth ── */}
-            <div
-                className="relative z-10 max-w-4xl mx-auto"
-                style={{
-                    transform: `translateY(${s * 0.4}px)`,
-                    opacity: Math.max(0, 1 - s * 0.0025),
-                    willChange: 'transform, opacity',
-                }}
+      {/* Main content — parallax layer 1 */}
+      <motion.div
+        style={{
+          position: 'relative', zIndex: 1,
+          y: titleYSpring, opacity,
+          maxWidth: 1400, margin: '0 auto',
+          padding: '0 40px', paddingTop: 160,
+          display: 'grid', gridTemplateRows: '1fr auto',
+          minHeight: '100vh',
+        }}
+        className="section-pad"
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'end', gap: 40 }}>
+          <div>
+            {/* Eyebrow */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              style={{
+                fontFamily: "'Instrument Sans', sans-serif",
+                fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase',
+                color: '#c8ff00', marginBottom: 36,
+                display: 'flex', alignItems: 'center', gap: 12,
+              }}
             >
-                {/* Badge */}
-                <div className="inline-flex items-center gap-2 mb-8 animate-fade-up">
-                    <span
-                        className="text-xs font-medium tracking-widest uppercase px-4 py-2 rounded-full"
-                        style={{
-                            background: 'var(--accent-light)',
-                            border: '1px solid rgba(99,102,241,0.3)',
-                            color: '#a5b4fc',
-                        }}
-                    >
-                        ✦ Creative Agency
-                    </span>
-                </div>
+              <motion.span
+                initial={{ width: 0 }}
+                animate={{ width: 32 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                style={{ display: 'inline-block', height: 1, background: '#c8ff00', overflow: 'hidden' }}
+              />
+              Creative Studio — Est. 2026
+            </motion.div>
 
-                {/* Headline — words split at different depths */}
-                <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-6 animate-fade-up animate-delay-100">
-                    {headline.split(' ').map((word, i) => (
-                        <span
-                            key={i}
-                            className="inline-block gradient-text"
-                            style={{
-                                // Each word moves at a slightly different vertical speed
-                                transform: `translateY(${s * (0.04 + i * 0.015) * -1}px)`,
-                                marginRight: '0.3em',
-                                willChange: 'transform',
-                                display: 'inline-block',
-                            }}
-                        >
-                            {word}
-                        </span>
-                    ))}
-                </h1>
-
-                {/* Subheadline */}
-                <p
-                    className="text-lg md:text-xl mb-10 max-w-2xl mx-auto animate-fade-up animate-delay-200"
-                    style={{
-                        color: 'var(--muted-light)',
-                        lineHeight: '1.75',
-                        transform: `translateY(${s * -0.06}px)`,
-                        willChange: 'transform',
-                    }}
-                >
-                    {subheadline}
-                </p>
-
-                {/* CTA buttons */}
-                <div
-                    className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up animate-delay-300"
-                    style={{
-                        transform: `translateY(${s * -0.08}px)`,
-                        willChange: 'transform',
-                    }}
-                >
-                    <a
-                        href="#work"
-                        className="btn-primary px-8 py-4 rounded-full text-white font-medium"
-                        style={{ background: 'var(--accent)' }}
-                    >
-                        {ctaText} →
-                    </a>
-                    <a
-                        href="#contact"
-                        className="btn-secondary px-8 py-4 rounded-full font-medium text-white"
-                        style={{ border: '1px solid var(--border)' }}
-                    >
-                        Get in touch
-                    </a>
-                </div>
-            </div>
-
-            {/* ── Layer 3: Scroll indicator — foreground, rushes away ── */}
-            <div
-                className="absolute left-1/2 z-20 pointer-events-none flex flex-col items-center gap-3"
-                style={{
-                    bottom: '2.5rem',
-                    transform: `translateX(-50%) translateY(${s * 1.2}px)`,
-                    opacity: Math.max(0, 1 - s / 140),
-                    willChange: 'transform, opacity',
-                }}
+            {/* Headline */}
+            <h1
+              style={{
+                fontFamily: "'Archivo Black', sans-serif",
+                fontSize: 'clamp(64px, 9vw, 140px)',
+                lineHeight: 0.92, letterSpacing: '-0.03em',
+                color: '#f0ede8', margin: 0, maxWidth: 900,
+              }}
             >
-                <span className="text-xs tracking-widest uppercase" style={{ color: 'var(--muted)', letterSpacing: '0.2em' }}>
-                    Scroll
+              <div style={{ overflow: 'hidden', display: 'block' }}>
+                <SplitReveal text="WE BUILD" delay={0.2} />
+              </div>
+              <div style={{ overflow: 'hidden', display: 'block' }}>
+                <SplitReveal text="BRANDS" delay={0.35} style={{ color: '#c8ff00' }} />
+              </div>
+              <div style={{ overflow: 'hidden', display: 'block' }}>
+                <SplitReveal text="THAT MOVE" delay={0.5} />
+              </div>
+              <div style={{ overflow: 'hidden', display: 'block' }}>
+                <SplitReveal text="CULTURE." delay={0.65} />
+              </div>
+            </h1>
+          </div>
+
+          {/* Right side — subheadline + CTA */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.9 }}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+              gap: 24, paddingBottom: 8, minWidth: 240,
+            }}
+            className="hidden md:flex"
+          >
+            <p
+              style={{
+                fontFamily: "'Instrument Sans', sans-serif",
+                fontSize: 15, lineHeight: 1.7, color: '#888880',
+                maxWidth: 220, textAlign: 'right', margin: 0,
+              }}
+            >
+              {subheadline || 'Strategy, identity, and digital craft for brands that refuse to be average.'}
+            </p>
+            <button
+              onClick={() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                fontFamily: "'Instrument Sans', sans-serif",
+                fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: '#f0ede8', background: 'none',
+                border: '1px solid rgba(240,237,232,0.25)',
+                padding: '12px 28px',
+                transition: 'border-color 0.3s, color 0.3s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#c8ff00'; e.currentTarget.style.color = '#c8ff00' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(240,237,232,0.25)'; e.currentTarget.style.color = '#f0ede8' }}
+            >
+              {ctaText || 'View Work'} ↓
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Stats bar */}
+        <motion.div style={{ y: subtitleY }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.1 }}
+            style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+              borderTop: '1px solid rgba(240,237,232,0.1)',
+              paddingTop: 28, paddingBottom: 48, marginTop: 60,
+              gap: 16, flexWrap: 'wrap',
+            }}
+          >
+            {[
+              { num: '120+', label: 'Projects Delivered' },
+              { num: '14',   label: 'Countries Reached' },
+              { num: '8×',   label: 'Award Winning' },
+              { num: '2018', label: 'Founded in Berlin' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.num}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 1.2 + i * 0.08 }}
+                style={{ display: 'flex', flexDirection: 'column', gap: 6 }}
+              >
+                <span style={{
+                  fontFamily: "'Archivo Black', sans-serif",
+                  fontSize: 36, lineHeight: 1, color: '#f0ede8', letterSpacing: '-0.02em',
+                }}>
+                  {stat.num}
                 </span>
-                <div style={{ width: '1px', height: '56px', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{
-                        position: 'absolute', top: 0, left: 0,
-                        width: '1px', height: '100%',
-                        background: 'linear-gradient(to bottom, transparent, var(--muted-light) 40%, var(--accent) 100%)',
-                        animation: 'scroll-line 1.6s ease-in-out infinite',
-                    }} />
-                </div>
-            </div>
-        </section>
-    )
+                <span style={{
+                  fontFamily: "'Instrument Sans', sans-serif",
+                  fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888880',
+                }}>
+                  {stat.label}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.8 }}
+        style={{
+          position: 'absolute', bottom: 32, left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 2,
+        }}
+      >
+        <span style={{
+          fontFamily: "'Instrument Sans', sans-serif",
+          fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888880',
+        }}>
+          Scroll
+        </span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ width: 1, height: 40, background: 'linear-gradient(to bottom, #c8ff00, transparent)' }}
+        />
+      </motion.div>
+    </section>
+  )
 }

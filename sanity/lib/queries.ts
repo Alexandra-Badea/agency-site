@@ -28,3 +28,31 @@ export const CASE_STUDIES_QUERY = defineQuery(
     summary
   }`
 )
+
+export const ABOUT_QUERY = defineQuery(
+  `*[_type == "about"][0]{
+    heading,
+    paragraphs,
+    availabilityHeading,
+    availabilitySubtext,
+    teamMembers[]{
+      name,
+      role,
+      since
+    },
+    stats[]{
+      label,
+      value
+    }
+  }`
+)
+
+export const PROCESS_QUERY = defineQuery(
+  `*[_type == "process"] | order(order asc){
+    _id,
+    num,
+    title,
+    duration,
+    description
+  }`
+)
