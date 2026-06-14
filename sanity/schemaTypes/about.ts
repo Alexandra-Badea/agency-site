@@ -41,7 +41,7 @@ export default defineType({
           fields: [
             defineField({ name: 'name',  title: 'Name',       type: 'string' }),
             defineField({ name: 'role',  title: 'Role',       type: 'string' }),
-            defineField({ name: 'since', title: 'Year joined (e.g. 2018)', type: 'string' }),
+            defineField({ name: 'since', title: 'Year joined (e.g. 2025)', type: 'string' }),
           ],
         },
       ],

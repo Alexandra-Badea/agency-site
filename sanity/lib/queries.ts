@@ -14,7 +14,8 @@ export const SERVICES_QUERY = defineQuery(
     _id,
     title,
     description,
-    icon
+    icon,
+    tags
   }`
 )
 
@@ -24,7 +25,7 @@ export const CASE_STUDIES_QUERY = defineQuery(
     title,
     client,
     year,
-    coverImage,
+    "coverImageUrl": coverImage.asset->url,
     tags,
     summary,
     accentColor,

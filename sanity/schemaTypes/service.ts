@@ -21,5 +21,12 @@ export default defineType({
       title: 'Icon name',
       type: 'string',
     }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      description: 'Shown when the accordion row is expanded (e.g. "Positioning", "Naming")',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
   ],
 })
